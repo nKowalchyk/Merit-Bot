@@ -54,8 +54,7 @@ exports.updateMerits = function(req, res) {
     }
     let addOrSub = ((req.body.amt < 0) ? 'sub' : 'add');
     let permissionIndex = permissionMatrix[req.body.meritOrDemerit] + permissionMatrix[addOrSub];
-    console.log(permissionIndex);
-    
+
     if(req.body.username === req.body.target) {
         permission = true;
     }
@@ -72,11 +71,11 @@ exports.updateMerits = function(req, res) {
                 if(permission) {
                     UserModel.findOneAndUpdate({username: req.body.target},{$inc: meritField}, {new: true, runValidators: true}, (err, doc) => {
                         if(err) {
-                            res.send(err);
+                            res.send('Operation not valid');
                             return;
                         }
                         else {
-                            res.send(JSON.stringify({ result: 'success'}));
+                            res.send(JSON.stringify({ username: req.body.target, operation: req.body.meritOrDemerit, amt: req.body.amt}));
                             return;
                         }
                     });

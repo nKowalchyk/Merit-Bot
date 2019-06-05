@@ -37,11 +37,11 @@ exports.updateMerits = function(user, tar, meritDemerit, amount, callback) {
             if(res.ok) {
                 res.json()
                     .then((json) => {
-                        callback(json.result);
+                        callback(json.username + ' ' + json.amt + ' ' + json.operation);
                         return;
                     })
                     .catch((err) => {
-                        console.log(err);
+                        callback(err);
                         return;
                     });
                 return;
