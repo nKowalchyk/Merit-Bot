@@ -18,11 +18,32 @@ exports.addUser = function(username) {
         });
 };
 
-exports.updateMerits = function(username, target, meritOrDemerit, amt) {
-    fetch(process.env.PORT + '/merits/' + username + '/' + target + '/' + amt + '/' + meritOrDemerit, { method: 'PUT' })
+exports.updateMerits = function(user, tar, meritDemerit, amount, callback) {
+    const options = {
+        method: 'PUT',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        body: JSON.stringify({
+            username: user,
+            target: tar,
+            meritOrDemerit: meritDemerit,
+            amt: amount
+        })
+    };
+    fetch('http://localhost:' + process.env.PORT + '/users/' + tar, options)
         .then((res) => {
             if(res.ok) {
-                console.log('request success');
+                res.json()
+                    .then((json) => {
+                        callback(json.result);
+                        return;
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        return;
+                    });
                 return;
             }
             throw new Error('request failed');
@@ -33,61 +54,24 @@ exports.updateMerits = function(username, target, meritOrDemerit, amt) {
         });
 };
 
-exports.getMerits = function(username) {
-    fetch(prcess.env.PORT + '/user/' + username, { method: 'GET' })
+exports.getMerits = function(username, callback) {
+    fetch('http://localhost:' + process.env.PORT + '/users/' + username, { method: 'GET' })
         .then((res) => {
             if(res.ok) {
-                console.log('request success');
-                return;
-            }
+                res.json()
+                    .then(json => {
+                        callback(json.result);
+                        return;
+                    })
+                    .catch(err => {
+                        console.log(err);                    
+                    })
+                }
+            return;
             throw new Error('request failed');
         })
         .catch((err) => {
             console.log(err);
             return;
         });
-};
-
-exports.parse = function(commandString) {
-    let result = {};
-    commandString[0] = commandString[0].slice(1);
-    if(commandString.length === printCommandLength) {
-        result.username = commandString[0];
-        result.meritOrDemerit = commandString[1];
-    }
-    else if(commandString === commandLength) {
-        result.username = commandString[0];
-        result.amt = commandString[1];
-        result.meritOrDemerit = commandString[2];
-    }
-    /*if(!validateInput(result)) {
-        result = null;
-    }*/
-    return result;
-};
-
-exports = {
-    commandLength, printCommandLength
-};
-
-function validateInput(result) {
-    if(result.meritOrDemerit) {
-        if(result.meritOrDemerit != 'merits' || result.meritOrDemerit!= 'demerits') {
-            return false;
-        }
-    }
-    else {
-        return false;
-    }
-
-    if(result.amt) {
-        if(isNaN(result.amt)) {
-            return false;
-        }
-    }
-    else {
-        return false;
-    }
-
-    return true;
 };

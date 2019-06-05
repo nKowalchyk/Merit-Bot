@@ -7,6 +7,7 @@ module.exports = function(app) {
     app.route('/users/:username')
         .get(bot.getMerits)
         .post(bot.addUser)
+        .put(bot.updateMerits)
         .delete(bot.deleteUser);
     app.route('/merits/:username/:target/:merits/:meritOrDemerit')
         .put(bot.updateMerits);

@@ -1,7 +1,6 @@
 'use strict';
 const mongoose = require('mongoose');
-const User = mongoose.model('Users');
-const permissionCheck = require('../utils/permissionChecker');
+const UserModel = require('../models/botModel');
 
 exports.listAllUsers = function(req, res) {
     User.find({}, (err, user) => {
@@ -15,12 +14,8 @@ exports.listAllUsers = function(req, res) {
 
 exports.addUser = function(req, res) {
     console.log('calling user function');
-    User.findOne({ username: req.params.username })
-    let newUser = new User({
-        username: req.params.username,
-        merits: 0,
-        demerits: 0,
-        permissions: '1001'
+    let newUser = new UserModel({
+        username: req.params.username
     });
     newUser.save((err) => {
         if (err) {
@@ -32,40 +27,60 @@ exports.addUser = function(req, res) {
 };
 
 exports.getMerits = function(req, res) {
-    console.log('getting merits');
-    User.findOne({ username: req.params.username }, 'merits demerits', (err, user) => {
+    UserModel.findOne({ username: req.params.username }, 'merits demerits', (err, user) => {
         if(err) {
             res.send(err);
             return;
         }
         if(user) {
             let results = req.params.username + ' Merits: ' + user.merits + ' Demerits: ' + user.demerits;
-            console.log(results);
-            res.send(results);
+            res.send(JSON.stringify({ result: results}));
+            return;
         }
         else {
             res.send('No user with that name ' + req.params.username);
+            return;
         }
     });
 };
 
 exports.updateMerits = function(req, res) {
-    if(!permissionCheck.validatePermissions(req.params.username, req.params.target, req.params.meritOrDemerit, req.params.merits, User)) {
-        res.send(req.params.username + ' Does not have permissions for this action!');
+    let permission = true;
+    const permissionMatrix = {
+        merits: 0,
+        demerits: 2,
+        add: 0,
+        sub: 1
     }
-    else {
-        User.findOne({username: req.params.target}, (err, user) => {
+    let addOrSub = ((req.body.amt < 0) ? 'sub' : 'add');
+    let permissionIndex = permissionMatrix[req.body.meritOrDemerit] + permissionMatrix[addOrSub];
+    console.log(permissionIndex);
+    
+    if(req.body.username === req.body.target) {
+        permission = true;
+    }
+    if (permission) {
+        UserModel.findOne({username: req.body.username}, 'permissions', (err, user) => {
             if(err) {
-                res.send(err);
+                res.send(JSON.stringify({result: 'failure'}));
                 return;
             }
-            if(user) {
-                let currentMerits = user[req.params.meritOrDemerit] + parseInt(req.params.merits, 10);
-                user[req.params.meritOrDemerit] = currentMerits;                
-                user.save(() => {
-                    console.log('saving');
-                });
-                return;
+            else if(user) {
+                let permission = (user.permissions.charAt(permissionIndex) === '1');
+                let meritField = {};
+                meritField[req.body.meritOrDemerit] = parseInt(req.body.amt, 10);
+                if(permission) {
+                    UserModel.findOneAndUpdate({username: req.body.target},{$inc: meritField}, {new: true, runValidators: true}, (err, doc) => {
+                        if(err) {
+                            res.send(err);
+                            return;
+                        }
+                        else {
+                            res.send(JSON.stringify({ result: 'success'}));
+                            return;
+                        }
+                    });
+                }
             }
         });
     }

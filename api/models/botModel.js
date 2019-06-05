@@ -5,7 +5,8 @@ const Schema = mongoose.Schema;
 const UserSchema = new Schema({
     username: {
         type: String,
-        required: 'Enter Username From Server'
+        required: true,
+        unique: true
     },
     merits: {
         type: Number,
