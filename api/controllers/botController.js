@@ -13,7 +13,6 @@ exports.listAllUsers = function(req, res) {
 };
 
 exports.addUser = function(req, res) {
-    console.log('calling user function');
     let newUser = new UserModel({
         username: req.params.username
     });

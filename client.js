@@ -41,7 +41,7 @@ client.on('message', (msg) => {
                 });
             }
             else if(commandString.length === 3) {
-                if(typeof(commandString[2]) != 'number') {
+                if(typeof(parseInt(commandString[2], 10)) != 'number') {
                     msg.reply('Enter a valid number');
                     return;
                 }
