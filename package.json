@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "startserver": "nodemon server.js",
-    "startclient": "nodemon client.js"
+    "startclient": "nodemon client.js",
+    "start": "node server.js | node client.js"
   },
   "author": "Nick Kowalchyk",
   "license": "ISC",
