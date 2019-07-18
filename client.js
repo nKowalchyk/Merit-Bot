@@ -1,4 +1,4 @@
-require('dotenv').config({path: __dirname + '/ENVIRONMENT.env'});
+require('dotenv').config({path: __dirname + '\\ENVIRONMENT.env'});
 const command = require('./commands/command.js');
 const Discord = require('discord.js');
 const client = new Discord.Client();
