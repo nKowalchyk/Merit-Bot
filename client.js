@@ -24,12 +24,13 @@ client.on('guildMemberAdd', (member) => {
 client.on('message', (msg) => {
     if(msg.content.charAt(0) === '!') {
         let commandString = msg.content.split(' ');
+
+
         
-        if(msg.mentions.users.first()) {
+        if(msg.mentions.users.first() && (commandString[0] === '!merits' || commandString[0] === '!demerits')) {
             commandString[1] = msg.mentions.users.first().username;
         }
         else {
-            msg.reply('No valid user');
             return;
         }
         commandString[0] = commandString[0].substring(1);
